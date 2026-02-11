@@ -1,7 +1,11 @@
-output "bucket" {
-  value = linode_object_storage_bucket.b.label
+output "domain_id" {
+  value = linode_domain.d.id
 }
 
-output "endpoint" {
-  value = linode_object_storage_bucket.b.s3_endpoint
+output "domain_name" {
+  value = linode_domain.d.domain
+}
+
+output "ns_records" {
+  value = local.linode_ns_servers
 }
