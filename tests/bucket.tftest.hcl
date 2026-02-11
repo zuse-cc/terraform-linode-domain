@@ -1,34 +1,37 @@
 mock_provider "linode" {}
 
-mock_provider "random" {
-  mock_resource "random_string" {
-    defaults = {
-      result = "abcd"
+variables {
+  env     = "tst"
+  service = "my-dns"
+  tld     = "my-domain.example"
+}
+
+run "sets_tags_based_on_inputs" {
+  assert {
+    condition     = contains(linode_domain.d.tags, "env:tst")
+    error_message = "Value for env should be tst"
+  }
+
+  assert {
+    condition     = contains(linode_domain.d.tags, "service:my-dns")
+    error_message = "Value for service should be my-dns"
+  }
+}
+
+run "creates_ns_records_for_parent" {
+  variables {
+    parent = {
+      domain_id = 123
     }
   }
-}
 
-variables {
-  stage   = "tst"
-  service = "bucket"
-  region  = "eu-central"
-}
-
-run "sets_correct_name_and_region" {
   assert {
-    condition     = linode_object_storage_bucket.b.label == "${var.stage}-${var.service}-abcd"
-    error_message = "incorrect bucket name"
+    condition     = length(linode_domain_record.ns) > 0
+    error_message = "Expected at least one NS record"
   }
 
   assert {
-    condition     = linode_object_storage_bucket.b.region == var.region
-    error_message = "incorrect bucket region"
-  }
-}
-
-run "sets_private_acl" {
-  assert {
-    condition     = linode_object_storage_bucket.b.acl == "private"
-    error_message = "bucket ACL is not set to private"
+    condition     = alltrue([for r in linode_domain_record.ns : r.domain_id == 123])
+    error_message = "Expected at least one NS record"
   }
 }

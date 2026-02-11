@@ -1,26 +1,21 @@
-variable "region" {
-  description = "Linode region to create the bucket in"
-  type        = string
+variable "tld" {
+  type = string
 }
 
-variable "stage" {
-  description = "Deployment stage"
-  type        = string
+variable "env" {
+  type = string
 }
 
 variable "service" {
-  description = "Service name"
-  type        = string
+  type    = string
+  default = "dns"
 }
 
-variable "versioning" {
-  description = "Enable versioning for the bucket"
+variable "parent" {
+  description = "Parent zone if this is a subdomain"
+  default     = null
+
   type = object({
-    enabled           = bool
-    access_key_id     = optional(string)
-    secret_access_key = optional(string)
+    domain_id = string
   })
-  default = {
-    enabled = false
-  }
 }
